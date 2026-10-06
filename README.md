@@ -1,55 +1,54 @@
-# Crispy Corner – Vårt team
+Crispy Corner – Vårt team
 
-En SPA byggd i React + TypeScript som visar personalen på den påhittade restaurangen **Crispy Corner**.
-Datan hämtas från ett externt API (`/api/users/getUsers`).
+En enkel SPA byggd med React + TypeScript för att visa personalen på den fiktiva restaurangen Crispy Corner.
 
-## Kom igång
+Personaldata hämtas från ett externt API.
 
-```bash
+Kom igång
 npm install
 npm run dev
-```
 
-Öppna sedan adressen som visas i terminalen (oftast http://localhost:5173).
 
-## Vyer (react-router-dom)
+Öppna sedan länken som visas i terminalen, oftast http://localhost:5173.
 
-| Route        | Sida             | Innehåll                                  |
-|--------------|------------------|-------------------------------------------|
-| `/`          | `UsersPage`      | Alla anställda som kort + sökfält          |
-| `/team/:id`  | `UserDetailPage` | Profilsida för en anställd                 |
-| `/om-oss`    | `AboutPage`      | Info om restaurangen och appen             |
-| `*`          | `NotFoundPage`   | 404 för okända adresser                    |
+Sidor
 
-## Datahämtning med useQuery
+/ – Visar alla anställda och har ett sökfält.
 
-- `src/api/users.ts` innehåller `fetchUsers()` som skickar `x-api-key` i headern.
-- `fetch` kastar inte fel vid t.ex. 401/500, därför kontrolleras `response.ok` och ett fel kastas manuellt.
-- `src/hooks/useUsers.ts` anropar `useQuery({ queryKey: ["users"], queryFn: fetchUsers })`.
-- Både listan och profilsidan använder samma hook och samma `queryKey`, så profilsidan läser från cachen och gör **inga extra anrop**.
+/team/:id – Visar information om en anställd.
 
-## Hantering av anropsgränsen (100 anrop/dag)
+/om-oss – Information om restaurangen och appen.
 
-I `src/main.tsx` är `QueryClient` inställd med:
-- `staleTime: 1 timme` – datan hämtas inte om när man byter sida
-- `refetchOnWindowFocus: false` – ingen ny hämtning när man byter flik
-- `retry: 1` – bara ett nytt försök vid fel (standard är 3)
+* – Visas om sidan inte finns.
 
-## Laddning, fel och tomt resultat
+Data och API
 
-- **Laddar:** `Loading`-komponent med spinner
-- **Fel:** `ErrorMessage` med tydligt meddelande och knapp "Försök igen"
-- **Tomt:** `EmptyState` – "Inga anställda hittades" (och "Ingen träff" vid sökning)
+Vi använder TanStack Query (useQuery) för att hämta och spara personaldata i en cache.
 
-## Struktur
+Listan och profilsidan använder samma data, vilket gör att vi slipper onödiga API-anrop.
 
-```
+För att hålla oss under gränsen på 100 anrop per dag används bland annat:
+
+Cachen sparas i 1 timme.
+
+Ingen ny hämtning sker när man byter flik.
+
+API-anrop försöks bara igen en gång vid fel.
+
+Laddning och fel
+
+Laddar: Spinner visas.
+
+Fel: Ett felmeddelande med knappen "Försök igen".
+
+Inga resultat: Ett meddelande visas om inga anställda hittas.
+
+Projektstruktur
 src/
-├── api/         fetch-funktioner mot API:et
-├── types/       TypeScript-interfaces (User, ApiUser)
-├── hooks/       useUsers (useQuery)
-├── components/  Navbar, UserCard, UserList, Avatar, SearchBar, Loading, ErrorMessage, EmptyState
-├── pages/       UsersPage, UserDetailPage, AboutPage, NotFoundPage
-├── App.tsx      routes
-└── main.tsx     QueryClient + BrowserRouter
-```
+├── api/          API-anrop
+├── types/        TypeScript-typer
+├── hooks/        useUsers
+├── components/   Återanvändbara komponenter
+├── pages/        Appens sidor
+├── App.tsx       Routing
+└── main.tsx      Startar appen
